@@ -1,10 +1,9 @@
 name: actions-build-landing-app
 
 on:
-  commit_comment:
-    branches: [ beta ]  
   push:
-    branches: [ beta ]
+    branches:
+      - beta
 
 jobs:
   build:
