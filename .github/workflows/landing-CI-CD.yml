@@ -22,7 +22,10 @@ jobs:
         run: yarn
       
       - name: Create ZIP package
-        run : zip -r node_modules public views app.js package.json yarn.lock  
+        run : zip -r landing-app.zip node_modules public views app.js package.json yarn.lock  
         
       - name: List current folder
         run : ls -la
+        
+      - name: Test ZIP package
+        run : unzip -l landing-app.zip
