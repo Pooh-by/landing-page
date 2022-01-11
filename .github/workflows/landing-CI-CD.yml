@@ -46,7 +46,8 @@ jobs:
           push: true
           tags: |
             ${{ steps.buildnumber.outputs.build_number }}
-            type=ref,event=branch
+            type=raw,value={{branch}}
+#            type=ref,event=branch
 #            ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
         
