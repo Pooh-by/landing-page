@@ -1,10 +1,12 @@
 name: actions-build-landing-app
 
-on: 
-  push:
-    branches:
-      - beta
-      - production
+on: push
+
+#on: 
+#  push:
+#    branches:
+#      - beta
+#      - production
 
 jobs:
   build:
