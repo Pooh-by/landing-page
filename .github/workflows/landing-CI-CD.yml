@@ -6,6 +6,10 @@ on:
       - beta
       - production
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
 
@@ -15,13 +19,18 @@ jobs:
       - name: Git clone repo    
         uses: actions/checkout@v2
 
-      - name: Login to Github Packages
+      - name: Login to the Github Container registry
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
  
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
  
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -32,7 +41,8 @@ jobs:
           # registry: ghcr.io
           # username: ${{ github.actor }}
           # password: ${{ secrets.GITHUB_TOKEN }}
-          tags: beta:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
         
       - name: List docker images
         run : docker ps -a
