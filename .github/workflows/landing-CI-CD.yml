@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - beta
+      - production
 
 jobs:
   build:
