@@ -11,10 +11,53 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
 
-    runs-on: ubuntu-latest
+  build_beta:
     
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/beta'
+    steps:
+      - name: Generate build number
+        id: buildnumber
+        uses: einaregilsson/build-number@v3 
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}   
+    
+      - name: Git clone repo    
+        uses: actions/checkout@v2
+
+      - name: Login to the Github Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Beta branch. Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+                ${{ steps.buildnumber.outputs.build_number }}
+                type=raw,value=beta
+            
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+        
+      - name: List docker images
+        run : docker ps -a
+
+  build_prod:
+    
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production'
     steps:
       - name: Generate build number
         id: buildnumber
@@ -37,12 +80,10 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          if: github.ref == 'refs/heads/beta'
           tags: |
-                ${{ steps.buildnumber.outputs.build_number }}
-                type=raw,value=beta 
-#               type=ref,event=branch
-              
+                type=raw,value=latest
+                type=raw,value=prod
+            
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -54,4 +95,3 @@ jobs:
         
       - name: List docker images
         run : docker ps -a
-
