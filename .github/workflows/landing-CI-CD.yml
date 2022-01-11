@@ -1,0 +1,35 @@
+name: actions-build-landing-app
+
+on: push
+
+#on: 
+#  push:
+#    branches:
+#      - beta
+#      - production
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16   
+          
+      - name: Run npm install
+        run: npm install
+
+      - name: Run yarn install        
+        run: yarn
+      
+      - name: Create ZIP package
+        run : zip -r landing-app.zip node_modules public views app.js package.json yarn.lock  
+        
+      - name: List current folder
+        run : ls -la
+        
+      - name: Test ZIP package
+        run : unzip -l landing-app.zip
